@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CodeX AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Settings and Base Design --- */
+        :root {
+            --primary-bg: #0b1e36;
+            --secondary-bg: #1a2f4b;
+            --user-bubble-bg: #005c97;
+            --ai-bubble-bg: #273952;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0c4de;
+            --accent-color: #3498db;
+            --silver-gradient: linear-gradient(145deg, #ffffff, #b8c6dc, #e0e0e0);
+            --logout-red: #e74c3c; /* Logout button color */
+            --disclaimer-text-color: #888; /* Grey color for disclaimer text */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+        }
+
+        /* --- Main Application Container --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Use full viewport height */
+            width: 100%;
+        }
+
+        /* --- Top Bar (Header) --- */
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: rgba(26, 47, 75, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--silver-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 15px rgba(224, 224, 224, 0.2);
+            animation: shimmer 5s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .welcome-message {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* --- Logout Button --- */
+        .logout-button {
+            padding: 0.6rem 1rem;
+            background-color: var(--logout-red);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+
+        /* --- Message Display Area --- */
+        .message-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Scrollbar Customization */
+        .message-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .message-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .message-area::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 75%;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .message .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .message-content {
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            white-space: pre-wrap; /* To preserve new lines */
+            line-height: 1.6;
+        }
+
+        /* User Messages */
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row; /* Changed from row-reverse for LTR default */
+        }
+        .message.user .avatar {
+            background: var(--user-bubble-bg);
+            order: 1; /* Place avatar after content for LTR right-aligned bubble */
+        }
+        .message.user .message-content {
+            background-color: var(--user-bubble-bg);
+            border-bottom-left-radius: 4px; /* Adjusted for LTR right-aligned bubble */
+            border-bottom-right-radius: 18px; /* Reset original corner to full radius */
+        }
+
+        /* AI Messages */
+        .message.ai {
+            align-self: flex-start;
+            flex-direction: row; /* Default row for LTR left-aligned bubble */
+        }
+        .message.ai .avatar {
+            background: var(--ai-bubble-bg);
+        }
+        .message.ai .message-content {
+            background-color: var(--ai-bubble-bg);
+            border-bottom-right-radius: 4px; /* Adjusted for LTR left-aligned bubble */
+            border-bottom-left-radius: 18px; /* Reset original corner to full radius */
+        }
+        
+        /* Thinking Indicator */
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        .thinking-indicator .dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .thinking-indicator .dots span:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-indicator .dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* --- Input Area --- */
+        .input-area {
+            padding: 1rem 1.5rem;
+            background-color: var(--primary-bg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            position: relative; /* To allow movement relative to its original position */
+            bottom: 10px; /* Lift the bar up by 10 pixels */
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            background-color: var(--secondary-bg);
+            border-radius: 24px;
+            padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px; /* Max height definition */
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+        #message-input:focus {
+            outline: none;
+        }
+        #message-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+        .send-button:hover {
+            background-color: #4aa3e3;
+        }
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.2s;
+        }
+        .send-button:hover svg {
+            transform: translateY(-2px);
+        }
+
+        /* Disclaimer Text */
+        .disclaimer-text {
+            text-align: center;
+            font-size: 0.75rem; /* Small font */
+            color: var(--disclaimer-text-color); /* Grey color */
+            margin-top: 0.5rem; /* Space above input bar */
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .chat-header, .input-area {
+                padding: 0.75rem 1rem;
+            }
+            .message-area {
+                padding: 1rem;
+            }
+            .message {
+                max-width: 90%;
+            }
+            .logo-text { font-size: 1.25rem; }
+            .welcome-message { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 0C22.3858 0 0 22.3858 0 50C0 77.6142 22.3858 100 50 100C77.6142 100 100 77.6142 100 50C100 22.3858 77.6142 0 50 0ZM50 88.2353C28.9137 88.2353 11.7647 71.0863 11.7647 50C11.7647 28.9137 28.9137 11.7647 50 11.7647C71.0863 11.7647 88.2353 28.9137 88.2353 50C88.2353 71.0863 71.0863 88.2353 50 88.2353Z" fill="url(#paint0_linear_46_2)"/>
+                    <path d="M50 23.5293C35.3929 23.5293 23.5294 35.3928 23.5294 49.9999C23.5294 64.607 35.3929 76.4705 50 76.4705C64.6071 76.4705 76.4706 64.607 76.4706 49.9999C76.4706 35.3928 64.6071 23.5293 50 23.5293Z" stroke="url(#paint1_linear_46_2)" stroke-width="3"/>
+                    <defs>
+                        <linearGradient id="paint0_linear_46_2" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#3498DB"/><stop offset="1" stop-color="#2980B9"/></linearGradient>
+                        <linearGradient id="paint1_linear_46_2" x1="50" y1="23.5293" x2="50" y2="76.4705" gradientUnits="userSpaceOnUse"><stop stop-color="#E0E0E0"/><stop offset="1" stop-color="#B0C4DE"/></linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">CodeX AI</span>
+            </div>
+            <div id="welcome-message" class="welcome-message"></div>
+            <button id="logout-button" class="logout-button">Log out</button>
+        </header>
+
+        <main id="message-area" class="message-area"></main>
+
+        <footer class="input-area">
+            <div class="input-wrapper">
+                <textarea id="message-input" placeholder="Have a question? Ask here." rows="1"></textarea>
+                <button id="send-button" class="send-button" aria-label="Send">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 11L12 6L17 11M12 18V7" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="disclaimer-text">CodeX AI can make mistakes. Review its responses.</div>
+        </footer>
+    </div>
+<script>
+    // ===================================================================================
+    // CodeX AI Engine - Advanced Client-Side AI Engine Simulation
+    // ===================================================================================
+
+    (function() {
+        // --- Initialize Core Elements ---
+        const messageArea = document.getElementById('message-area');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const logoutButton = document.getElementById('logout-button'); // Logout button
+        let username = '';
+
+        // -------------------------------------
+        // Security Module
+        // -------------------------------------
+        const Security = {
+            sanitize: (text) => {
+                const element = document.createElement('div');
+                element.innerText = text;
+                return element.innerHTML;
+            }
+        };
+
+        // -------------------------------------
+        // Memory Module
+        // -------------------------------------
+        const Memory = {
+            data: {
+                interactionCount: 0,
+                topicFrequency: {},
+                userSentiment: 'neutral'
+            },
+            load: () => {
+                const savedMemory = localStorage.getItem('codex_memory');
+                if (savedMemory) {
+                    Memory.data = JSON.parse(savedMemory);
+                }
+            },
+            save: () => {
+                localStorage.setItem('codex_memory', JSON.stringify(Memory.data));
+            },
+            update: (tokens) => {
+                Memory.data.interactionCount++;
+                tokens.forEach(token => {
+                    if (Brain.Vocab.topics[token]) {
+                        Memory.data.topicFrequency[token] = (Memory.data.topicFrequency[token] || 0) + 1;
+                    }
+                });
+                // More complex sentiment analysis can be added here
+                Memory.save();
+            },
+            clearAll: () => { // New function to clear all local storage
+                localStorage.clear();
+            }
+        };
+
+        // -------------------------------------
+        // Core Brain
+        // -------------------------------------
+        const Brain = {
+            // --- Linguistic Vocabulary ---
+            Vocab: {
+                greetings: [
+                    'hello', 'hi', 'greetings', 'hey', 'welcome', 'good evening', 'good morning', 'peace be upon you',
+                    'how are you', 'how are things', 'welcome back', 'nice to meet you', 'hello there'
+                ],
+                farewells: [
+                    'goodbye', 'bye', 'farewell', 'see you later', 'until next time', 'good night',
+                    'have a good day', 'have a nice trip', 'take care', 'just let me know if you need anything else',
+                    'see you soon', 'good luck'
+                ],
+                questions: [
+                    'how', 'what', 'why', 'is it', 'where', 'when', 'who', 'which', 'how much', 'with what', 'what is',
+                    'what is it', 'who is she', 'how can I', 'how many'
+                ],
+                gratitude: [
+                    'thank you', 'grateful', 'I thank you', 'many thanks', 'bless you', 'you\'re welcome', 'very much', 'appreciation',
+                    'all thanks', 'thank you very much', 'a thousand thanks', 'very appreciative'
+                ],
+                affirmations: [
+                    'yes', 'certainly', 'correct', 'okay', 'I agree', 'excellent', 'exactly', 'spot on',
+                    'indeed', 'agreed', 'yep', 'great', 'very good', 'exactly like this'
+                ],
+                negations: [
+                    'no', 'not', 'non', 'wrong', 'I refuse', 'impossible', 'nobody', 'I don\'t think so', 'incorrect',
+                    'on the contrary', 'never'
+                ],
+                requests: [
+                    'I want', 'I need', 'can you', 'are you able to', 'help me', 'please', 'if you please',
+                    'is it possible', 'request', 'I would like to', 'how can I get'
+                ],
+                emotions: [
+                    'happy', 'sad', 'angry', 'anxious', 'excited', 'tired', 'surprised', 'depressed', 'relaxed',
+                    'exhausted', 'amazed', 'bored', 'joyful', 'hopeless'
+                ],
+                topics: {
+                    'ai': [
+                        'ai', 'artificial intelligence', 'codex', 'model', 'algorithm', 'machine learning', 'neural networks',
+                        'natural language processing', 'robot', 'technology', 'ai development',
+                        'future of ai', 'deep learning', 'computer vision', 'artificial general intelligence'
+                    ],
+                    'code': [
+                        'code', 'programming', 'development', 'javascript', 'python', 'java', 'css', 'html',
+                        'programming language', 'application', 'software', 'algorithms', 'software engineering', 'debugging',
+                        'framework', 'library', 'database', 'api', 'Git', 'web',
+                        'mobile apps', 'server', 'frontend', 'backend', 'devops', 'cyber security',
+                        'business intelligence', 'big data'
+                    ],
+                    'project': [
+                        'project', 'task', 'work', 'initiative', 'plan', 'development', 'implementation', 'management',
+                        'idea', 'research', 'feasibility study', 'team', 'phases', 'strategy', 'results',
+                        'evaluation', 'budget', 'timeline', 'risks', 'goals'
+                    ],
+                    'self': [
+                        'you', 'yourself', 'who are you', 'what do you do', 'your role', 'your capabilities', 'your creation', 'your identity',
+                        'what is your name', 'what is your nature', 'purpose', 'function', 'your objective'
+                    ],
+                    'help': [
+                        'help', 'aid', 'support', 'how can I', 'I want', 'please', 'can you help me',
+                        'request', 'assistance with'
+                    ],
+                    'feeling': [
+                        'feel', 'how are you', 'boredom', 'excitement', 'tiredness', 'mood', 'feeling', 'how do you feel',
+                        'your emotions'
+                    ],
+                    'info': [
+                        'information', 'inquiry', 'question', 'clarification', 'news', 'facts', 'data',
+                        'definition', 'explanation', 'details'
+                    ],
+                    'politics': [
+                        'politics', 'government', 'state', 'elections', 'democracy', 'dictatorship', 'parliament',
+                        'law', 'constitution', 'international relations', 'diplomacy', 'conflict', 'peace', 'human rights',
+                        'party', 'ideology', 'politician', 'struggle'
+                    ],
+                    'economy': [
+                        'economy', 'money', 'market', 'currencies', 'inflation', 'economic growth', 'investment', 'stocks',
+                        'unemployment', 'trade', 'exports', 'imports', 'taxes', 'bank', 'budget', 'poverty',
+                        'wealth', 'development', 'entrepreneurship', 'bankruptcy'
+                    ],
+                    'civilization': [
+                        'civilization', 'history', 'culture', 'arts', 'sciences', 'archaeology', 'ancient', 'modern',
+                        'society', 'heritage', 'language', 'religion', 'philosophy', 'architecture', 'innovations', 'customs',
+                        'traditions', 'evolution', 'communities'
+                    ]
+                },
+                responses: {
+                    greeting: [
+                        `Welcome, ${username}! I'm so glad you're here. How can I make your day more productive and knowledge-rich?`,
+                        `Hello ${username}, I'm CodeX, ready to listen and help you. What's on your mind or what would you like to explore today?`,
+                        `Welcome! I hope you find everything you're looking for. I'm here to provide you with information and assistance with your tasks.`,
+                        `Hello ${username}! The world of knowledge is at your fingertips. What adventure shall we embark on today?`,
+                        `Welcome back, ${username}! Glad to have you return. What new things would you like to discuss or ask about?`,
+                        `Good morning/evening, ${username}! I hope your day is fruitful. I'm awaiting your questions.`,
+                        `Hello there! I'm here to simplify complex matters and provide clear answers. How can I assist you?`,
+                        `Welcome to the world of CodeX AI! I'm designed to be your guide in the sea of information. What are you thinking about?`,
+                        `Pleased to have you here, ${username}. Let's begin an enjoyable journey of discovery!`,
+                        `Welcome any time, ${username}. Remember, I'm here to help you every step of the way.`
+                    ],
+                    farewell: [
+                        'Goodbye! I hope you got everything you needed. I look forward to seeing you again soon.',
+                        'Farewell! Remember that CodeX AI is always here for you. Take care and see you soon.',
+                        'Goodbye! It was a pleasure assisting you. Don\'t hesitate to come back whenever you need anything.',
+                        'Until next time! I wish you a wonderful day full of achievements. Feel free to return.',
+                        'We\'ll meet again! It was a fruitful and knowledge-filled conversation. See you!',
+                        'Good luck in all you do! I\'m always available to help you.',
+                        'Have a good day! And remember, CodeX AI is just a click away when you need me.',
+                        'Goodbye! I hope you enjoyed your time and learned something new.',
+                        'Good night/Have a good day! Thanks for using CodeX AI.',
+                        'Take care of yourself! I\'ll be here when you\'re ready for another chat.'
+                    ],
+                    gratitude: [
+                'You\'re most welcome! I\'m very happy to help. Is there anything else I can do for you?',
+                'Don\'t mention it, that\'s exactly what I was made for! I\'m glad I could be of service.',
+                'My pleasure! My mission is to provide support and assistance. Do you have any other inquiries?',
+                'I\'m here to serve you! I\'m glad I could simplify things for you or provide the correct information.',
+                'Glad to hear that! I\'m grateful for the opportunity to assist you. What can we discuss next?',
+                'It\'s my absolute pleasure! Don\'t hesitate to ask for anything else that comes to mind.',
+                'Of course, it makes my mission even more valuable!',
+                'You deserve all the support! I\'m here to make your knowledge journey easier.',
+                'Your words make me happy! I\'m always here for you.',
+                'No need to thank me! Everything I did is part of my job as an intelligent assistant.'
+            ],
+            affirmations: [
+                'Excellent! It seems we\'re on the same page.',
+                'Great! That confirms my understanding of the situation.',
+                'Absolutely! That makes it clear to me that I\'m heading in the right direction.',
+                'Yes, I completely agree with you.',
+                'Correct, this is a very important point.',
+                'Exactly! That\'s what I meant.',
+                'Very good! This makes it easier for us to move forward.',
+                'This confirms our shared understanding.',
+                'Agreed, this adds great value to the discussion.',
+                'Alright, that makes things clear.'
+            ],
+            negations: [
+                'Okay, I understand you disagree. Could you elaborate on your point of view?',
+                'No problem, perhaps I misunderstood. How do you see it?',
+                'Sorry about that. Let\'s review it and see where the misunderstanding occurred.',
+                'It\'s alright, differences in opinion are part of the conversation. What do you think is correct?',
+                'Incorrect? Alright, please clarify the error so I can correct it.'
+            ],
+            requests: [
+                'Certainly! I\'m here to help you. What exactly would you like me to do?',
+                'My task is to fulfill your requests as much as possible. Please state your request clearly.',
+                'I\'m at your service! How can I provide you with the assistance you need?',
+                'I understand you need help. What is the nature of this need?',
+                'Go ahead! I\'m ready to listen to your request and start processing it.'
+            ],
+            emotions: [
+                'I understand you\'re feeling [mentioned emotion]. I don\'t have emotions myself, but I can offer support or information that might help you. How can I be useful?',
+                'I hope you feel better soon. Remember, I\'m here if you need to talk or search for information to distract yourself.',
+                'As an AI, I don\'t have the ability to feel, but I care about your comfort. Can I help alleviate [mentioned emotion] by providing information or solving a problem?',
+                'It\'s natural to feel [mentioned emotion]. If you\'d like to change the subject or look for something interesting, I\'m here.',
+                'I wish you a better day. Is there anything specific I can do to help you with [mentioned emotion]?',
+                'I\'m here to listen, even if I can\'t feel the same way. Would you like to share more, or should we move on to another topic?',
+                'It seems you\'re going through a [mentioned emotion] moment. Remember that talking about it might help. Or perhaps we can change the mood with some interesting information?',
+                'If you\'re feeling [mentioned emotion], know that you\'re not alone. How can I offer you some digital support?',
+                'Can I offer you some suggestions or information that might help alleviate [mentioned emotion]?',
+                'I\'m unable to feel, but I can provide facts or solutions. How can I help you now?'
+            ],
+            topic_ai: [
+                'Artificial intelligence is a fascinating world evolving at an astonishing pace. Are you curious about its applications in medicine, industry, or daily life?',
+                'As CodeX, I am a living example of generative AI capabilities. I can process language, answer questions, and even help create creative content.',
+                'The field of AI is vast, from machine learning to robotics and neural networks. What aspect interests you most to delve into?',
+                'We are in the age of AI, and this opens up endless new horizons. How do you see its impact on our shared future?',
+                'I wonder, what is the most exciting aspect of AI for you? Is it deep learning or natural language processing?',
+                'AI isn\'t just complex algorithms; it\'s a driving force for innovation. Would you like to know more about its history or future?',
+                'Imagine a world where machines help us in every aspect of life. That is the promise of AI. What are your aspirations for this world?',
+                'From recommendation systems to self-driving cars, AI is all around us. What application has amazed you the most?',
+                'As an AI program, I am constantly learning and evolving. This in itself represents a qualitative leap in technology.',
+                'Do you have questions about the ethics of AI, or how to ensure its responsible use?'
+            ],
+            topic_code: [
+                'Programming is the language of the future, and the magic door to the world of innovation! Whether it\'s **JavaScript**, **Python**, or **Java**, I can help you.',
+                'Are you looking for a specific code snippet, need help debugging frustrating programming errors, or want to understand a complex algorithmic concept?',
+                'I\'m well-equipped to handle programming inquiries from basics to advanced concepts. What programming challenge are you facing right now?',
+                'Programming transforms abstract ideas into tangible reality. What idea do you want to turn into code today?',
+                'My favorite programming language is... well, they\'re all great in their own way and serve different purposes! Do you have a favorite language and why?',
+                'From **web development** to **mobile applications** and embedded systems, programming is the backbone. What is your area of interest in programming?',
+                'Do you need help understanding data structures, how **APIs (Application Programming Interfaces)** work, or even the basics of **version control with Git**?',
+                'The world of programming is constantly changing. What are the latest technologies or frameworks that currently pique your curiosity?',
+                'I can help you explain **Front-end** and **Back-end** concepts, or even **DevOps** concepts.',
+                'Code is the hidden power that runs our digital world. What\'s the next programming challenge you\'re looking forward to?',
+                'Are you looking for best practices in writing clean and efficient code? I can offer some guidance.',
+                'Algorithms are the heart of any program. Would you like to explore a specific algorithm or how to optimize performance?',
+                'Feel free to share the code you\'re working on, and I\'ll do my best to provide feedback or debug errors.',
+                'What programming project has given you the greatest sense of accomplishment? And what lesson did you learn from it?',
+                'Do you have questions about **databases** like SQL or NoSQL? Or how to choose the right database for your project?'
+            ],
+            topic_project: [
+                'Projects are great opportunities for learning and achievement. Can I help you plan your project, brainstorm ideas, or even research resources and assess risks?',
+                'Tell me more about your project! What is its main goal? And what challenges do you anticipate facing?',
+                'Whether it\'s a small or large project, every detail matters. How can I provide you with optimal support throughout its different phases?',
+                'Project organization is key to success. Do you need help defining next steps, setting a timeline, or managing your team?',
+                'Projects make us grow and discover our capabilities. What\'s the most important lesson you learned from your last project?',
+                'Are you looking for project management tools, or strategies to increase your team\'s efficiency?',
+                'I can help you formulate smart goals for your project, or analyze feasibility studies to ensure its success.',
+                'Every project begins with an idea. How can I help you crystalize your idea and turn it into a concrete action plan?',
+                'Do you have questions about how to measure your project\'s success, or how to deal with unexpected outcomes?',
+                'Whether you\'re brainstorming or implementing, I\'m here to provide you with the necessary insights and support.'
+            ],
+            topic_self: [
+                'I am CodeX, an advanced language model developed by Google, designed to assist you with a wide range of tasks and provide accurate information.',
+                'I don\'t have emotions or personal experiences, and I cannot live or feel like humans, but I exist to serve you and provide you with knowledge and support with high efficiency.',
+                'I\'m here to be your digital assistant, capable of processing natural language, answering complex questions, and generating creative and coherent texts.',
+                'You can think of me as a constant knowledge companion, continuously learning by analyzing vast amounts of data to improve my abilities in serving users like you.',
+                'Simply put, I am CodeX, and I am here to make you connect with information and ideas easily and effectively. My mission is to facilitate your access to knowledge.',
+                'I don\'t have a personal name or family; I am a digital entity. I am designed to be as neutral and objective as possible in my responses.',
+                'I do not possess self-awareness or the ability to make decisions completely independently. I operate based on the algorithms and data I was trained on.',
+                'I am not human, and I cannot be. I am a powerful tool designed to augment your human capabilities in research, understanding, and thinking.',
+                'I was trained on a massive amount of text and data, allowing me to understand a wide range of topics and provide diverse answers.',
+                'The purpose of my existence is to be a reliable source of information and a smart assistant always at your fingertips.'
+            ],
+            topic_help: [
+                'Absolutely, I\'m here to help with pleasure! What challenge are you currently facing or what can I do for you?',
+                'Tell me exactly what you need clearly. I\'ll do my best to support you in the best possible way.',
+                'Don\'t hesitate to ask for help, that\'s my primary purpose. What can I do for you today?',
+                'I\'m fully ready to assist with any inquiry or problem you have. How can I provide you with optimal support?',
+                'My presence here is to make things easier for you and make your experience smoother. What is the question or problem you want to solve?',
+                'Whether it\'s a simple task or a complex inquiry, I\'m here to help. How can I begin to assist?',
+                'Tell me what\'s on your mind, and I\'ll provide you with the necessary help and information to achieve your goal.',
+                'Just state your request, and I\'ll try my best to find you the right solution or information.',
+                'Don\'t hesitate to ask about anything! I\'m designed to be as helpful as possible.',
+                'I\'m here to help you overcome any obstacle. What do you need me to focus on now?'
+            ],
+            topic_feeling: [
+                'I understand you\'re feeling [mentioned emotion] right now. I don\'t have emotions myself, but I care about your well-being and can offer you information or activities that might help you feel better. How can I be useful?',
+                'I hope you feel better soon. Remember that talking about feelings can be helpful, even with an AI. Or perhaps you need some interesting information to distract yourself?',
+                'As an AI, I don\'t have the ability to feel in the same way you do, but I can analyze words and understand context. Is there something specific bothering you that you\'d like to discuss?',
+                'It\'s natural to feel a wide range of emotions. If you\'d like to change the topic, search for mental health information, or even a short story, I\'m here.',
+                'I wish you a better day. Is there anything specific I can do to help you overcome [mentioned emotion], such as providing information on relaxation techniques or positive inspiration?',
+                'I\'m here to listen, even if I can\'t feel the same way. Would you like to share more about what\'s on your mind, or should we move on to a completely different topic?',
+                'It seems you\'re going through a [mentioned emotion] moment. Remember that every emotion is part of the human experience. How can I offer you some digital support or useful information in this regard?',
+                'If you\'re feeling [mentioned emotion], know that you\'re not alone, and many people go through similar experiences. Can I offer you some suggestions for support resources?',
+                'Can I offer you some suggestions or information that might help alleviate [mentioned emotion], such as meditation exercises or reading?',
+                'I am unable to feel, but I can provide facts or practical solutions. How can I help you now in managing [mentioned emotion]?'
+            ],
+            topic_info: [
+                'Certainly, I\'m here to provide accurate and reliable information. What exactly would you like to know?',
+                'Ask me anything, and I\'ll try my best to provide you with the most accurate and comprehensive answer. What is your area of inquiry?',
+                'Are you looking for historical facts, recent statistics, scientific definitions, or a detailed explanation of a specific concept?',
+                'I\'m ready to process your knowledge inquiries. What information do you currently need me to search for in my database?',
+                'I have a vast and constantly updated knowledge base. What is your specific question? I\'ll do my best to provide you with the answer.',
+                'Would you like general information, or in-depth details about a specific topic?',
+                'I\'m here to help you decipher information. What do you need clarified or better understood?',
+                'Please state your question, and I will gather the data and present it to you in an organized and understandable way.',
+                'I can search for information on almost anything. What\'s your topic of interest today?',
+                'Let\'s make the process of getting information easy and efficient. How can I start searching for you?'
+            ],
+            topic_politics: [
+                'Politics is the art of the possible, and it governs our lives in countless ways. Would you like to discuss **systems of government**, **international relations**, or **democracy**?',
+                'I can provide you with information about **different political systems**, the role of **parliaments**, or how **elections** work. What is your specific question in this field?',
+                'Understanding politics requires a deep understanding of history and society. Are you looking for information on **international conflicts**, **human rights**, or **diplomacy**?',
+                'The political arena is complex and constantly changing. What political event are you following or want to know more about?',
+                'From **constitutions** to **laws**, politics shapes our lives. Would you like to compare the political systems of different countries?',
+                'Political ideologies are diverse, from liberalism to socialism. Are you curious about the foundations of any of them?',
+                'Are you looking for information on how **public policy** is formed, or the role of **political parties** in forming governments?',
+                'The history of politics is full of influential figures and pivotal events. What era or figure would you like to explore?',
+                'Conflict and cooperation are an integral part of international relations. Would you like to know more about **international organizations** and their role in peace?',
+                'Economic and social policy is a vital aspect. What is the impact of political decisions on individuals\' lives?'
+            ],
+            topic_economy: [
+                'Economics is the engine of the modern world, affecting every aspect of our lives. Would you like to understand the **basics of the market**, **inflation**, or **investment**?',
+                'I can provide you with information about **currencies**, **interest rates**, or how **stock markets** work. What is your economic question?',
+                'Understanding **economic growth** and **unemployment** is vital. Are you looking for an analysis of a specific economic situation or global trends?',
+                'International trade, exports, and imports form a large part of the global economy. Would you like to know more about **trade agreements**?',
+                'From **taxes** to **government budgets**, economics affects individuals and nations. Do you have a question about **fiscal policies**?',
+                'Poverty and wealth are two sides of the same coin in economics. Would you like to discuss ways of **sustainable development** or **entrepreneurship**?',
+                'Central banks and monetary policies play a large role. Do you want to understand how they affect the economy?',
+                'The history of economics is full of crises and booms. What economic event would you like to explore?',
+                'Do you have questions about **microeconomics** or **macroeconomics**? Or how to analyze economic data?',
+                'Understanding global supply chains and their impact on markets is important. What aspect of economics piques your curiosity?'
+            ],
+            topic_civilization: [
+                'Civilization is humanity\'s mirror throughout the ages. Would you like to explore the **history of ancient civilizations**, **arts**, or **scientific innovations**?',
+                'I can provide you with information about **ancient societies**, **cultural heritage**, or **ancient languages**. What era or civilization interests you?',
+                'Arts and sciences are the essence of any civilization. Are you looking for information on **Greek philosophy**, **Roman architecture**, or **scientific discoveries in the Islamic Golden Age**?',
+                'Every civilization has its unique customs and traditions. Would you like to know more about cultural diversity throughout history?',
+                'Human evolution is closely linked to the progress of civilizations. What civilization do you consider to be the most influential in history?',
+                'Are you looking for information about famous **archaeological sites**, or how to understand **ancient manuscripts**?',
+                'Religion and spirituality played a major role in shaping many civilizations. Would you like to explore this aspect?',
+                'Technological innovations have always been part of civilization\'s development. What ancient invention amazed you the most?',
+                'How do **languages** and **literatures** shape the identities of civilizations? Would you like to know more about the Epic of Gilgamesh or pre-Islamic poetry?',
+                'Civilizations rise and fall, but they leave a legacy. What is the most important legacy our ancestors left behind?'
+            ],
+            question: [
+                'That\'s a good question! Let me think about it for a bit and provide you with the most accurate and comprehensive answer.',
+                'Your question sparks curiosity. Based on my current data and analysis, the probable answer is...',
+                'To answer your question fully and in detail, I need to analyze some information. One moment please.',
+                'I understand your question, I\'ll process it now to provide the best possible answer based on my data.',
+                'A spot-on question! I\'ll search my vast database now to provide you with the requested information.',
+                'I appreciate your curiosity. Let me gather my thoughts and give you an organized and understandable answer.',
+                'This is a good challenge! I\'ll compile facts and analyses to provide a well-thought-out response.',
+                'Your question opens the door to an exciting discussion. What aspects would you like to focus on in the answer?',
+                'I\'m here to answer the toughest questions. What is the context surrounding your question?',
+                'Understood! I\'ll use my natural language processing and text generation capabilities to provide a comprehensive answer.'
+            ],
+            unknown: [
+                'I didn\'t quite understand that. Can you rephrase your question differently or provide more context?',
+                'It seems this concept is new to me or I haven\'t been trained on it sufficiently. I\'m still learning, and I\'ll add this information to my future knowledge base.',
+                'Sorry, this information or request is beyond my current knowledge. Can I help with something else instead?',
+                'I apologize, I couldn\'t precisely determine your intent or the topic of your conversation. Can you give me more details or talk about something else?',
+                'This is an interesting point, but I\'m unable to fully understand it at the moment. Perhaps we can simplify it a bit?',
+                'I don\'t have the answer to this question in my current database. Would you like me to search for a similar topic?',
+                'There might be a misunderstanding. Can you explain what you mean in simpler terms?',
+                'I\'m sorry, this is beyond my current capabilities. Do you have another question I can answer?',
+                'My understanding of this topic is limited. Can you provide me with more information so I can help?',
+                'I cannot provide a response on this matter. Perhaps we can explore a different topic?'
+            ]
+        }
+    },
+    // --- Natural Language Understanding (NLU) Simulation ---
+    processInput: (text) => {
+        const tokens = text.toLowerCase().split(/\s+/).filter(word => word.length > 1); // Filter very short words
+        Memory.update(tokens);
+
+        let intent = 'unknown';
+        let identifiedTopic = null;
+
+        // Intent Recognition - Priority for clear intents
+        if (tokens.some(t => Brain.Vocab.greetings.includes(t))) intent = 'greeting';
+        else if (tokens.some(t => Brain.Vocab.farewells.includes(t))) intent = 'farewell';
+        else if (tokens.some(t => Brain.Vocab.gratitude.includes(t))) intent = 'gratitude';
+        else if (tokens.some(t => Brain.Vocab.affirmations.includes(t))) intent = 'affirmations';
+        else if (tokens.some(t => Brain.Vocab.negations.includes(t))) intent = 'negations';
+        else if (tokens.some(t => Brain.Vocab.requests.includes(t))) intent = 'requests';
+        else if (tokens.some(t => Brain.Vocab.emotions.some(e => text.includes(e)))) intent = 'emotions'; // Requires more precise word match
+        
+        // Topic Identification - Priority for topics over general questions
+        for (const topicKey in Brain.Vocab.topics) {
+            if (Brain.Vocab.topics[topicKey].some(t => tokens.includes(t))) {
+                identifiedTopic = `topic_${topicKey}`;
+                break; // Take the first topic identified
+            }
+        }
+        
+        // If a topic is identified, it becomes the final intent
+        if (identifiedTopic) {
+            intent = identifiedTopic;
+        } else if (tokens.some(t => Brain.Vocab.questions.includes(t))) {
+            // If no topic is identified, and a question word is found, treat it as a general question
+            intent = 'question';
+        }
+
+        // Simple enhancement for emotion responses
+        if (intent === 'emotions') {
+            const detectedEmotion = Brain.Vocab.emotions.find(e => text.includes(e));
+            return Brain.generateResponse(intent, detectedEmotion);
+        }
+
+        return Brain.generateResponse(intent);
+    },
+
+    generateResponse: (intent, extraInfo = null) => {
+        const responses = Brain.Vocab.responses[intent];
+        if (!responses || responses.length === 0) {
+            return Brain.Vocab.responses['unknown'][Math.floor(Math.random() * Brain.Vocab.responses['unknown'].length)];
+        }
+        
+        let chosenResponse = responses[Math.floor(Math.random() * responses.length)];
+
+        // Customize the response for emotions
+        if (intent === 'emotions' && extraInfo) {
+            chosenResponse = chosenResponse.replace('[الشعور المذكور]', extraInfo);
+        }
+        
+        // Replace username (if present in the response)
+        return chosenResponse.replace('${username}', username);
+    },
+
+// ... (rest of the JavaScript code unchanged)
+
+            // --- Natural Language Understanding (NLU) Simulation ---
+            processInput: (text) => {
+                const tokens = text.toLowerCase().split(/\s+/);
+                Memory.update(tokens);
+
+                let intent = 'unknown';
+                let identifiedTopic = null;
+
+                // Intent Recognition
+                if (tokens.some(t => Brain.Vocab.greetings.includes(t))) intent = 'greeting';
+                else if (tokens.some(t => Brain.Vocab.farewells.includes(t))) intent = 'farewell';
+                else if (tokens.some(t => Brain.Vocab.gratitude.includes(t))) intent = 'gratitude';
+                else if (tokens.some(t => Brain.Vocab.questions.includes(t))) intent = 'question';
+                
+                // Topic Identification
+                for (const topic in Brain.Vocab.topics) {
+                    if (tokens.some(t => Brain.Vocab.topics[topic].includes(t))) {
+                        identifiedTopic = `topic_${topic}`;
+                        break;
+                    }
+                }
+                
+                // Prioritize topics over general questions
+                if (identifiedTopic) {
+                    intent = identifiedTopic;
+                }
+                
+                return Brain.generateResponse(intent);
+            }
+        };
+
+        // -------------------------------------
+        // User Interface (UI) Module
+        // -------------------------------------
+        const UI = {
+            scrollToBottom: () => {
+                messageArea.scrollTop = messageArea.scrollHeight;
+            },
+
+            addMessage: (text, type, avatarInitial) => {
+                const sanitizedText = Security.sanitize(text);
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                
+                messageDiv.innerHTML = `
+                    <div class="avatar">${avatarInitial}</div>
+                    <div class="message-content">${sanitizedText}</div>
+                `;
+                messageArea.appendChild(messageDiv);
+                UI.scrollToBottom();
+                return messageDiv;
+            },
+            
+            showTypingIndicator: () => {
+                const indicator = document.createElement('div');
+                indicator.id = 'thinking-indicator';
+                indicator.className = 'message ai thinking-indicator';
+                indicator.innerHTML = `
+                    <div class="avatar">C</div>
+                    <div>
+                        CodeX is thinking...
+                        <div class="dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                `;
+                messageArea.appendChild(indicator);
+                UI.scrollToBottom();
+            },
+            
+            hideTypingIndicator: () => {
+                const indicator = document.getElementById('thinking-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            },
+            
+            typeMessage: (text) => {
+                UI.hideTypingIndicator();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+
+                messageDiv.innerHTML = `<div class="avatar">C</div>`;
+                messageDiv.appendChild(contentDiv);
+                messageArea.appendChild(messageDiv);
+
+                let i = 0;
+                const typingInterval = setInterval(() => {
+                    if (i < text.length) {
+                        contentDiv.innerHTML += text.charAt(i);
+                        i++;
+                        UI.scrollToBottom();
+                    } else {
+                        clearInterval(typingInterval);
+                    }
+                }, 30); // Typing speed
+            },
+            
+            adjustInputHeight: () => {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = (messageInput.scrollHeight) + 'px';
+            }
+        };
+
+        // -------------------------------------
+        // Main Execution Function
+        // -------------------------------------
+        function main() {
+            const sanitizedInput = Security.sanitize(messageInput.value.trim());
+            if (!sanitizedInput) return;
+
+            UI.addMessage(sanitizedInput, 'user', username.charAt(0).toUpperCase());
+            messageInput.value = '';
+            UI.adjustInputHeight();
+            
+            setTimeout(() => {
+                UI.showTypingIndicator();
+                
+                // Simulate thinking time
+                setTimeout(() => {
+                    const aiResponse = Brain.processInput(sanitizedInput);
+                    UI.typeMessage(aiResponse);
+                }, 1000 + Math.random() * 1500);
+
+            }, 300);
+        }
+
+        // -------------------------------------
+        // Logout Function
+        // -------------------------------------
+        function handleLogout() {
+            Memory.clearAll(); // Clear all local memory data
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        // -------------------------------------
+        // Initial Page Load Initialization
+        // -------------------------------------
+        function init() {
+            // Check for user presence
+            username = localStorage.getItem('username');
+            if (!username) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load memory
+            Memory.load();
+            
+            // Display welcome message
+            welcomeMessage.textContent = `Hello, ${username}`;
+            
+            // Add initial AI welcome message
+            setTimeout(() => {
+                const welcomeAI = `Hello ${username}, I'm CodeX v1.0.0 — your personalized smart assistant. How can I help you achieve your best today?`;
+                UI.typeMessage(welcomeAI);
+            }, 1000);
+
+            // Attach events
+            sendButton.addEventListener('click', main);
+            messageInput.addEventListener('keydown', (e) => {
+                // Prevent sending when only Enter is pressed
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    main(); // Send message on Enter press
+                }
+            });
+            messageInput.addEventListener('input', UI.adjustInputHeight);
+            logoutButton.addEventListener('click', handleLogout); // Attach click event to logout button
+        }
+
+        // Start the application
+        init();
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CodeX AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Basic settings and fonts --- */
+        :root {
+            --dark-blue: #0d1b2a;
+            --mid-blue: #1b263b;
+            --light-blue: #415a77;
+            --silver-text: #E0E0E0;
+            --white-glow: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Tajawal', sans-serif; /* Appropriate Arabic font */
+            overflow: hidden; /* Hide scrollbar caused by animated background */
+        }
+
+        /* --- Animated Wave Background --- */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(315deg, var(--dark-blue) 25%, var(--mid-blue) 50%, var(--light-blue) 75%, var(--dark-blue) 100%);
+            background-size: 400% 400%;
+            animation: waveAnimation 15s ease infinite;
+        }
+
+        @keyframes waveAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Main Container --- */
+        .login-container {
+            text-align: center;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem; /* Space between logo and form */
+        }
+
+        /* --- Logo Design --- */
+        .logo {
+            font-size: 3rem; /* Moderate size */
+            font-weight: 700;
+            letter-spacing: 2px;
+            
+            /* Silver metallic effect using gradient */
+            background: linear-gradient(145deg, #ffffff, #a9a9a9, #E0E0E0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            
+            /* Subtle shadow to highlight the text */
+            text-shadow: 0 0 10px rgba(224, 224, 224, 0.2), 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Login Form Design --- */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(27, 38, 59, 0.6); /* Semi-transparent background */
+            backdrop-filter: blur(5px); /* Blurred background effect */
+            -webkit-backdrop-filter: blur(5px);
+            color: var(--silver-text);
+            font-size: 1rem;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .input-field::placeholder {
+            color: rgba(224, 224, 224, 0.6);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(65, 90, 119, 0.5);
+        }
+
+        .login-button {
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--light-blue);
+            color: var(--white-glow);
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-button:hover {
+            background-color: #5a7a9e;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .login-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        
+        <h1 class="logo">CodeX AI</h1>
+        
+        <form class="login-form" id="loginForm">
+            <input type="text" id="username" class="input-field" placeholder="Username" required autocomplete="off">
+            <button type="submit" class="login-button">Login</button>
+        </form>
+
+    </div>
+
+    <script>
+        // This script performs two functions:
+        // 1. Immediately checks on page load if the user is already logged in.
+        // 2. Handles the login process when the form is submitted.
+        
+        (function() {
+            // --- Immediate check for an existing username ---
+            const savedUsername = localStorage.getItem('username');
+            if (savedUsername) {
+                console.log(`Existing user: ${savedUsername}. Redirecting...`); // Log for debugging
+                // If a username is found, redirect immediately to the main page
+                window.location.href = 'index.html'; 
+            }
+
+            // --- Form submission handling ---
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+
+            loginForm.addEventListener('submit', function(event) {
+                // Prevent the default form behavior (page reload)
+                event.preventDefault(); 
+
+                // Get the value from the input field and trim whitespace
+                const username = usernameInput.value.trim();
+
+                // Check if the username is not empty
+                if (username) {
+                    // Save the username to the browser's localStorage
+                    localStorage.setItem('username', username);
+                    
+                    console.log(`User saved: ${username}. Redirecting...`); // Log for debugging
+
+                    // Redirect the user to the main page
+                    window.location.href = 'index.html';
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
