@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CodeX AI</title>
+    <title>CodeX AI - Login</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* --- Basic settings and fonts --- */
         :root {
             --dark-blue: #0d1b2a;
             --mid-blue: #1b263b;
             --light-blue: #415a77;
+            --accent-blue: #007bff; /* Accent color for buttons/highlights */
             --silver-text: #E0E0E0;
             --white-glow: #ffffff;
+            --card-background: rgba(27, 38, 59, 0.7); /* Slightly more opaque for cards */
         }
 
         * {
@@ -24,19 +26,17 @@
         }
 
         html, body {
-            height: 100%;
-            font-family: 'Tajawal', sans-serif; /* Appropriate Arabic font */
-            overflow: hidden; /* Hide scrollbar caused by animated background */
-        }
-
-        /* --- Animated Wave Background --- */
-        body {
+            min-height: 100%; /* Use min-height to ensure content can extend page length */
+            font-family: 'Montserrat', 'Tajawal', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scrollbar */
+            color: var(--silver-text);
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column; /* Allows content to stack vertically */
+            align-items: center; /* Center content horizontally */
             background: linear-gradient(315deg, var(--dark-blue) 25%, var(--mid-blue) 50%, var(--light-blue) 75%, var(--dark-blue) 100%);
             background-size: 400% 400%;
             animation: waveAnimation 15s ease infinite;
+            padding-bottom: 50px; /* Space at the bottom */
         }
 
         @keyframes waveAnimation {
@@ -45,51 +45,59 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Main Container --- */
+        /* --- Main Login Container (Original Style) --- */
         .login-container {
             text-align: center;
-            padding: 2rem;
+            padding: 2.5rem 3rem; /* Increased padding for more space */
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem; /* Space between logo and form */
+            gap: 2.5rem; /* Increased space between logo and form */
+            position: relative;
+            z-index: 1; /* Ensures it's above the animated background */
+            margin-top: 15vh; /* Push it down from the top more */
+            margin-bottom: 6rem; /* More space below the login container */
+            background-color: var(--card-background); /* Added background for clarity */
+            backdrop-filter: blur(5px); /* Added blur for consistency */
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; /* Occupy more width on larger screens */
+            max-width: 400px; /* Max width to prevent it from becoming too wide */
         }
 
         /* --- Logo Design --- */
         .logo {
-            font-size: 3rem; /* Moderate size */
+            font-size: 3.5rem; /* Larger logo */
             font-weight: 700;
-            letter-spacing: 2px;
-            
-            /* Silver metallic effect using gradient */
+            letter-spacing: 3px; /* More prominent spacing */
             background: linear-gradient(145deg, #ffffff, #a9a9a9, #E0E0E0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            
-            /* Subtle shadow to highlight the text */
-            text-shadow: 0 0 10px rgba(224, 224, 224, 0.2), 0 0 20px rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 12px rgba(224, 224, 224, 0.3), 0 0 25px rgba(255, 255, 255, 0.15);
         }
 
-        /* --- Login Form Design --- */
+        /* --- Login Form Design (Original) --- */
         .login-form {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.8rem; /* Increased gap */
             width: 100%;
-            max-width: 320px;
+            max-width: 350px; /* Max width for form elements inside container */
         }
 
         .input-field {
             width: 100%;
-            padding: 1rem;
+            padding: 1.1rem; /* Slightly larger padding */
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            background-color: rgba(27, 38, 59, 0.6); /* Semi-transparent background */
-            backdrop-filter: blur(5px); /* Blurred background effect */
+            background-color: rgba(27, 38, 59, 0.6);
+            backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             color: var(--silver-text);
-            font-size: 1rem;
+            font-size: 1.05rem; /* Slightly larger font */
             font-family: 'Tajawal', sans-serif;
             transition: all 0.3s ease;
         }
@@ -101,41 +109,349 @@
         .input-field:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(65, 90, 119, 0.5);
+            box-shadow: 0 0 18px rgba(65, 90, 119, 0.6); /* More prominent glow */
         }
 
         .login-button {
-            padding: 1rem;
+            padding: 1.1rem; /* Slightly larger padding */
             border: none;
             border-radius: 8px;
             background-color: var(--light-blue);
             color: var(--white-glow);
-            font-size: 1.1rem;
+            font-size: 1.15rem; /* Slightly larger font */
             font-weight: 700;
             font-family: 'Tajawal', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); /* More prominent shadow */
         }
 
         .login-button:hover {
             background-color: #5a7a9e;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Enhanced hover effect */
+            transform: translateY(-3px);
         }
 
         .login-button:active {
             transform: translateY(0);
         }
 
+        /* --- Additional Content Sections (below login) --- */
+        .content-section {
+            width: 90%; /* Utilize full width on large screens */
+            max-width: 1200px; /* Max width to prevent content from stretching too much */
+            margin: 4rem auto; /* Space between sections and center them */
+            padding: 3.5rem; /* Increased padding for more spacious feel */
+            background-color: var(--card-background);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .content-section h2 {
+            font-size: 2.8rem; /* Larger headings */
+            color: var(--white-glow);
+            margin-bottom: 2.5rem; /* More space below heading */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        /* --- Features Section --- */
+        .feature-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Larger min-width for cards */
+            gap: 2rem; /* Increased gap */
+            text-align: left;
+        }
+
+        .feature-card {
+            background-color: rgba(255, 255, 255, 0.05); /* Lighter background for individual cards */
+            border-radius: 12px; /* Slightly larger border-radius */
+            padding: 2rem; /* Increased padding */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Slightly more visible border */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px); /* More pronounced lift */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-blue); /* Highlight border on hover */
+        }
+
+        .feature-card h3 {
+            font-size: 1.6rem; /* Larger font size */
+            color: var(--white-glow);
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-card p {
+            font-size: 1.05rem; /* Slightly larger font size */
+            line-height: 1.6;
+            color: var(--silver-text);
+        }
+
+        /* --- Founder Section --- */
+        .founder-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            max-width: 650px; /* Wider card */
+            margin: 0 auto; /* Center the card */
+            padding: 3rem; /* More padding */
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .founder-card img {
+            width: 180px; /* Larger image */
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--accent-blue); /* Thicker border */
+            margin-bottom: 2rem; /* More space below image */
+            box-shadow: 0 0 25px rgba(0, 123, 255, 0.5); /* More prominent glow */
+        }
+
+        .founder-card h3 {
+            font-size: 2.2rem; /* Larger heading */
+            color: var(--white-glow);
+            margin-bottom: 0.8rem;
+        }
+
+        .founder-card p {
+            font-size: 1.15rem; /* Larger text */
+            line-height: 1.7;
+            color: var(--silver-text);
+        }
+
+        /* --- Plain Text Sections (No Card Background) --- */
+        .plain-text-section {
+            width: 90%; /* Utilize full width on large screens */
+            max-width: 1000px; /* Max width to prevent content from stretching too much */
+            margin: 6rem auto 3rem auto; /* More space above and below */
+            text-align: center;
+            position: relative;
+            z-index: 1; /* Ensure text is above background waves */
+        }
+
+        .plain-text-section h2 {
+            font-size: 2.8rem; /* Larger headings */
+            color: var(--white-glow);
+            margin-bottom: 2rem; /* More space below heading */
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+        }
+
+        .plain-text-section p {
+            font-size: 1.25rem; /* Larger text */
+            line-height: 1.8;
+            color: var(--silver-text);
+        }
+
+        /* --- Copyright --- */
+        .copyright {
+            font-size: 1rem; /* Slightly larger copyright text */
+            color: rgba(224, 224, 224, 0.7);
+            margin-top: 5rem; /* More space above copyright */
+            text-align: center;
+            width: 100%; /* Ensure it spans the width */
+            position: relative;
+            z-index: 1;
+        }
+
         /* --- Responsive Design --- */
-        @media (max-width: 480px) {
-            .logo {
+        @media (max-width: 1024px) {
+            .content-section {
+                padding: 3rem;
+                margin: 3rem auto;
+            }
+            .content-section h2 {
+                font-size: 2.5rem;
+                margin-bottom: 2rem;
+            }
+            .feature-cards-container {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+            .feature-card {
+                padding: 1.8rem;
+            }
+            .feature-card h3 {
+                font-size: 1.5rem;
+            }
+            .feature-card p {
+                font-size: 1rem;
+            }
+            .founder-card {
+                padding: 2.5rem;
+            }
+            .founder-card img {
+                width: 160px;
+                height: 160px;
+            }
+            .founder-card h3 {
+                font-size: 2rem;
+            }
+            .founder-card p {
+                font-size: 1.1rem;
+            }
+            .plain-text-section {
+                margin: 5rem auto 2.5rem auto;
+            }
+            .plain-text-section h2 {
                 font-size: 2.5rem;
             }
+            .plain-text-section p {
+                font-size: 1.15rem;
+            }
+        }
 
+        @media (max-width: 768px) {
             .login-container {
+                margin-top: 10vh;
+                margin-bottom: 4rem;
+                padding: 2rem 2.5rem;
+                max-width: 350px; /* narrower for smaller tablets/large phones */
+                gap: 2rem;
+            }
+            .logo {
+                font-size: 3rem;
+                letter-spacing: 2px;
+            }
+            .login-form {
+                gap: 1.5rem;
+            }
+            .input-field, .login-button {
                 padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .content-section {
+                padding: 2rem;
+                margin: 2.5rem auto;
+                width: 95%; /* Use more width on smaller screens */
+            }
+            .content-section h2 {
+                font-size: 2.2rem;
+                margin-bottom: 1.8rem;
+            }
+
+            .feature-cards-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Allow two columns on most phones */
+                gap: 1.2rem;
+            }
+            .feature-card {
+                padding: 1.5rem;
+            }
+            .feature-card h3 {
+                font-size: 1.3rem;
+            }
+            .feature-card p {
+                font-size: 0.95rem;
+            }
+
+            .founder-card {
+                padding: 2rem;
+                max-width: 100%; /* Fill available width */
+            }
+            .founder-card img {
+                width: 140px;
+                height: 140px;
+                margin-bottom: 1.5rem;
+            }
+            .founder-card h3 {
+                font-size: 1.8rem;
+            }
+            .founder-card p {
+                font-size: 1.05rem;
+            }
+
+            .plain-text-section {
+                margin: 4rem auto 2rem auto;
+                width: 90%; /* Use more width */
+            }
+            .plain-text-section h2 {
+                font-size: 2.2rem;
+            }
+            .plain-text-section p {
+                font-size: 1.1rem;
+            }
+            .copyright {
+                margin-top: 4rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-bottom: 30px;
+            }
+            .login-container {
+                padding: 1.5rem 1.8rem;
+                gap: 1.5rem;
+                margin-top: 8vh;
+                margin-bottom: 3rem;
+                width: 95%; /* Maximize width on smallest screens */
+            }
+            .logo {
+                font-size: 2.5rem;
+                letter-spacing: 1.5px;
+            }
+            .input-field, .login-button {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+
+            .content-section {
+                padding: 1.5rem;
+                margin: 2rem auto;
+            }
+            .content-section h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .feature-cards-container {
+                grid-template-columns: 1fr; /* Stack all cards vertically on very small phones */
+                gap: 1rem;
+            }
+            .feature-card {
+                padding: 1.2rem;
+            }
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+            .feature-card p {
+                font-size: 0.85rem;
+            }
+
+            .founder-card {
+                padding: 1.5rem;
+            }
+            .founder-card img {
+                width: 100px;
+                height: 100px;
+            }
+            .founder-card h3 {
+                font-size: 1.5rem;
+            }
+            .founder-card p {
+                font-size: 0.9rem;
+            }
+
+            .plain-text-section {
+                margin: 3rem auto 1.5rem auto;
+            }
+            .plain-text-section h2 {
+                font-size: 1.8rem;
+            }
+            .plain-text-section p {
+                font-size: 1rem;
+            }
+            .copyright {
+                margin-top: 3rem;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -143,26 +459,63 @@
 <body>
 
     <div class="login-container">
-        
         <h1 class="logo">CodeX AI</h1>
-        
         <form class="login-form" id="loginForm">
             <input type="text" id="username" class="input-field" placeholder="Username" required autocomplete="off">
             <button type="submit" class="login-button">Login</button>
         </form>
+    </div>
 
+    <div class="content-section">
+        <h2>Key Capabilities</h2>
+        <div class="feature-cards-container">
+            <div class="feature-card">
+                <h3>Advanced Problem Solving</h3>
+                <p>Leverage cutting-edge algorithms to tackle intricate challenges and find optimal solutions efficiently.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Creative Content Generation</h3>
+                <p>Generate high-quality text, code snippets, and innovative ideas across various domains.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Personalized Learning & Growth</h3>
+                <p>Receive tailored insights and recommendations to foster continuous learning and skill development.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Seamless Workflow Integration</h3>
+                <p>Integrate CodeX AI into your existing tools and platforms for a fluid and productive experience.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Meet the Visionary</h2>
+        <div class="founder-card">
+            <img src="https://i.pravatar.cc/150?img=68" alt="Future - Founder of CodeX AI">
+            <h3>Future</h3>
+            <p>Future is the innovative mind behind CodeX AI, driven by a passion for empowering individuals and businesses through advanced artificial intelligence. With a background in AI research and a deep understanding of human-computer interaction, Future envisioned CodeX AI as a tool to bridge the gap between complex technology and everyday productivity, aiming to make AI accessible and beneficial for everyone.</p>
+        </div>
+    </div>
+
+    <div class="plain-text-section">
+        <h2>Our Vision</h2>
+        <p>At CodeX AI, our vision is to create intelligent systems that not only solve complex problems but also empower human potential. We believe in a future where AI works collaboratively with individuals, augmenting their abilities, sparking innovation, and contributing positively to society's most pressing challenges. We are committed to ethical AI development and a user-centric approach that ensures accessibility and meaningful impact for all.</p>
+    </div>
+
+    <div class="copyright">
+        &copy; 2025 CodeX AI. All rights reserved.
     </div>
 
     <script>
-        // This script performs two functions:
-        // 1. Immediately checks on page load if the user is already logged in.
-        // 2. Handles the login process when the form is submitted.
+        // This script handles:
+        // 1. Immediate check if the user is already logged in to redirect.
+        // 2. Handling the login process when the form is submitted.
         
         (function() {
             // --- Immediate check for an existing username ---
             const savedUsername = localStorage.getItem('username');
             if (savedUsername) {
-                console.log(`Existing user: ${savedUsername}. Redirecting...`); // Log for debugging
+                console.log(`Existing user: ${savedUsername}. Redirecting to index.html...`); // Log for debugging
                 // If a username is found, redirect immediately to the main page
                 window.location.href = 'index.html'; 
             }
@@ -171,24 +524,26 @@
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
 
-            loginForm.addEventListener('submit', function(event) {
-                // Prevent the default form behavior (page reload)
-                event.preventDefault(); 
+            if (loginForm) { // Ensure the form exists before adding listener (it should on this page)
+                loginForm.addEventListener('submit', function(event) {
+                    // Prevent the default form behavior (page reload)
+                    event.preventDefault(); 
 
-                // Get the value from the input field and trim whitespace
-                const username = usernameInput.value.trim();
+                    // Get the value from the input field and trim whitespace
+                    const username = usernameInput.value.trim();
 
-                // Check if the username is not empty
-                if (username) {
-                    // Save the username to the browser's localStorage
-                    localStorage.setItem('username', username);
-                    
-                    console.log(`User saved: ${username}. Redirecting...`); // Log for debugging
+                    // Check if the username is not empty
+                    if (username) {
+                        // Save the username in the browser's localStorage
+                        localStorage.setItem('username', username);
+                        
+                        console.log(`User saved: ${username}. Redirecting to index.html...`); // Log for debugging
 
-                    // Redirect the user to the main page
-                    window.location.href = 'index.html';
-                }
-            });
+                        // Redirect the user to the main page
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
         })();
     </script>
 
